@@ -3,6 +3,7 @@
 import os
 import sys
 
+port = int(os.getenv('PORT', 4000))
 
 def main():
     """Run administrative tasks."""
