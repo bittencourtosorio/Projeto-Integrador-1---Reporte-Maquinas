@@ -1,0 +1,101 @@
+{% extends "base.html" %}
+{% load static%}
+{% block 'body' %}
+
+<!-- Container responsavel por registrar defeitos -->
+<div class="container">
+    <h1><strong>Base de Conhecimento da Empresa</strong></h1>
+    <form method="POST" action="">
+        {% csrf_token %}
+        <select name="maquina">
+            <option value="" disabled selected>Selecione a máquina</option>
+            <option value="Máquina 1">Máquina 1</option>
+            <option value="Máquina 2">Máquina 2</option>
+            <option value="Máquina 3">Máquina 3</option>
+            <option value="Máquina 4">Máquina 4</option>
+            <option value="Máquina 5">Máquina 5</option>
+        </select>
+        <textarea name="descricao" placeholder="Digite o defeito..." required></textarea>
+        <textarea name="solucao" placeholder="Digite a solução aplicada..." required></textarea>
+        <textarea name="causa_possivel" placeholder="Digite a causa possivel..." required></textarea>
+        <button type="submit">Registrar Defeito</button>
+        {% if erro %}
+            <div class="alert alert-danger">{{ erro }}</div>
+        {% endif %}
+        
+    </form>
+    {% if messages %}
+    <div class="messages">
+        {% for message in messages %}
+        <div class="alert alert-{{ message.tags }}">
+            {{ message }}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+<!-- Formulário para realizar a busca nos defeitos -->
+    <form method="GET" action="{% url 'buscar_defeito' %}">
+        <div class="input-group-prepend mb-3">
+          <input
+            type="text" 
+            class="form-control "
+            placeholder="Pesquisar defeitos anteriores..." 
+            name="q"
+            id="q "
+            value="{{ request.GET.q }}"
+          >
+          <button class="btn btn-outline-secondary" type="submit" id="button-addon1">Buscar</button>
+        </div>
+      </form>
+            
+        {% if resultados %}
+            <h3>Resultados da busca:</h3>
+            <ul>
+                {% for defeito in resultados %}
+                <li>
+                    <strong>{{ defeito.maquina }}</strong><br>
+                    <span>📃 Descrição: {{ defeito.descricao }}</span><br>
+                    <span>📌 Solução: {{ defeito.solucao }}</span><br>
+                    <span>🫵🏻 Causa Possivel: {{ defeito.causa_possivel }}</span>
+                </li>
+                {% empty %}
+                    <li>Nenhum resultado encontrado</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+<!-- Se caso os defeitos forém maiores que 10 hávera paginação -->
+        {% if resultados.has_other_pages %}
+    <nav aria-label="Page navigation">
+        <ul class="pagination">
+            {% if resultados.has_previous %}
+                <li class="page-item">
+                    <a class="page-link" href="?q={{ request.GET.q }}&page={{ resultados.previous_page_number }}">Anterior</a>
+                </li>
+            {% endif %}
+
+            {% for num in resultados.paginator.page_range %}
+                <li class="page-item {% if num == resultados.number %}active{% endif %}">
+                    <a class="page-link" href="?q={{ request.GET.q }}&page={{ num }}">{{ num }}</a>
+                </li>
+            {% endfor %}
+
+            {% if resultados.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="?q={{ request.GET.q }}&page={{ resultados.next_page_number }}">Próxima</a>
+                </li>
+            {% endif %}
+        </ul>
+    </nav>
+</form>
+        
+   
+{% endif %}
+<!-- Botão respónsavel por retornar a HOME -->
+<a href="{% url 'base_conhecimento' %}">
+    <button type="submit" class="btn btn-outline-secondary">
+    <i class="fas fa-home"></i> Voltar para Home
+</button></a>
+</div> 
+
+
+{% endblock 'body'%}
